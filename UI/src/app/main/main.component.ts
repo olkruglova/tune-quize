@@ -1,0 +1,10 @@
+import { HttpClient } from "@angular/common/http";
+import { Component } from "@angular/core";
+
+@Component({
+  selector: "app-main",
+  templateUrl: "./main.component.html",
+  styleUrl: "./main.component.scss",
+  standalone: true
+})
+export class MainComponent {}
