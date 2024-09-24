@@ -5,8 +5,33 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
-        width: 100wh;
+        height: 100%;
+        width: 100%;
+    }
+
+    .wrapper {
+        width: 100%;
+        height: 100%;
+        padding: 3.5rem;
+
+        .content {
+            width: 100%;
+            height: 100%;
+            padding: 3.5rem;
+            box-shadow: rgba(0, 0, 0, 0.4) 0px 30px 90px;
+
+            &.green {
+                box-shadow: $neon-green 0px 0px 70px;
+            }
+
+            &.yellow {
+                box-shadow: $neon-yellow 0px 0px 70px;
+            }
+
+            &.orange {
+                box-shadow: $neon-orange 0px 0px 70px;
+            }
+        }
     }
 
     .login-btn {
@@ -25,12 +50,10 @@
             0 0 100px 50px $neon-green;
 
         &:hover {
-            opacity: 0.70;
-            color: $white;
             box-shadow:
                 0 0 40px 20px $white,
-                0 0 80px 40px $neon-green,
-                0 0 100px 50px $neon-yellow;
+                0 0 70px 30px $neon-yellow,
+                0 0 90px 40px $neon-green;
         }
 
         &>p {
