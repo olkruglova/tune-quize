@@ -1,28 +1,31 @@
-import { API } from "./api";
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, catchError, map, Observable, of } from "rxjs";
+import { ActivatedRoute, Router } from "@angular/router";
+import { BehaviorSubject } from "rxjs";
 
 @Injectable({
   providedIn: "root"
 })
 export class AuthService {
   public isLoading$ = new BehaviorSubject<boolean>(false);
-  constructor(private http: HttpClient) {}
 
-  public getToken(): Observable<any> {
-    this.isLoading$.next(true);
+  constructor(private route: ActivatedRoute, private router: Router) {}
 
-    return this.http.post<any>(API.GetToken, {}).pipe(
-      map((response: any) => {
-        this.isLoading$.next(false);
-        return response;
-      }),
-      catchError((error) => {
-        console.error("Error fetching token", error);
-        this.isLoading$.next(false);
-        return of(null);
-      })
-    );
+  public handleAuth(): void {
+    this.route.queryParams.subscribe((params) => {
+      const accessToken = params["access_token"];
+      const refreshToken = params["refresh_token"];
+
+      if (accessToken && refreshToken) {
+        localStorage.setItem("access_token", accessToken);
+        localStorage.setItem("refresh_token", refreshToken);
+
+        this.router.navigate([], {
+          queryParams: {},
+          replaceUrl: true
+        });
+      } else {
+        console.log("No tokens found in the query parameters");
+      }
+    });
   }
 }

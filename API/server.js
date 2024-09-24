@@ -2,43 +2,138 @@ import express from "express";
 import fetch from "node-fetch";
 import bodyParser from "body-parser";
 import cors from "cors";
+import querystring from "querystring";
+import crypto from "crypto";
 
 const app = express();
+const PORT = 3000;
+
+const CLIENT_ID = "65c5ab46f30248c5b2a6f8e3a55ceede";
+const CLIENT_SECRET = "a15977f721834c73a3b30875759b5794";
+const REDIRECT_URI = 'http://localhost:3000/callback';
+const TOKEN_URL = "https://accounts.spotify.com/api/token";
+
+const generateRandomString = (length) => {
+  return crypto.randomBytes(length).toString('hex');
+};
 
 app.use(bodyParser.json());
 app.use(cors());
 
-app.post("/get-token", async (req, res) => {
-  const client_id = "65c5ab46f30248c5b2a6f8e3a55ceede";
-  const client_secret = "a15977f721834c73a3b30875759b5794"; // Keep this server-side
+// const stateKey = 'spotify_auth_state';
+const scope =
+      'user-read-private user-read-email user-read-recently-played user-top-read user-follow-read user-follow-modify playlist-read-private playlist-read-collaborative playlist-modify-public';
 
-  const tokenUrl = "https://accounts.spotify.com/api/token";
-  const authString = Buffer.from(`${client_id}:${client_secret}`).toString("base64");
+app.get("/login", (req, res) => {
+    const state = generateRandomString(16); // Generate a random state for CSRF protection
 
-  try {
-    const response = await fetch(tokenUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${authString}`
-      },
-      body: new URLSearchParams({
-        grant_type: "client_credentials"
-      })
+    // Redirect the user to Spotify for authorization
+    const queryParams = querystring.stringify({
+        response_type: 'code',
+        client_id: CLIENT_ID,
+        scope: scope,
+        redirect_uri: REDIRECT_URI,
+        state: state,
     });
-
-    if (response.ok) {
-      const data = await response.json();
-      res.json({ access_token: data.access_token });
-    } else {
-      res.status(response.status).json({ error: "Failed to fetch token from Spotify" });
-    }
-  } catch (error) {
-    console.error("Error fetching token from Spotify:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
+    res.redirect(`https://accounts.spotify.com/authorize?${queryParams}`);
 });
 
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+app.get("/callback", async (req, res) => {
+    const code = req.query.code || null;
+  
+    if (!code) {
+      return res.status(400).send('Authorization code missing');
+    }
+  
+    const authOptions = {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'),
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        code: code,
+        redirect_uri: REDIRECT_URI,
+        grant_type: 'authorization_code',
+      }),
+    };
+  
+    try {
+      const tokenResponse = await fetch(TOKEN_URL, authOptions);
+      const tokenData = await tokenResponse.json();
+  
+      if (tokenResponse.ok) {
+        const accessToken = tokenData.access_token;
+        const refreshToken = tokenData.refresh_token;
+  
+        res.redirect(`http://localhost:4200/?access_token=${encodeURIComponent(accessToken)}&refresh_token=${encodeURIComponent(refreshToken)}`);
+      } else {
+        res.status(tokenResponse.status).json({ error: 'Failed to get access token from Spotify' });
+      }
+    } catch (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.get("/refresh_token", async (req, res) => {
+    const refreshToken = req.query.refresh_token;
+
+    if (!refreshToken) {
+        return res.status(400).send('Refresh token missing');
+    }
+
+    // Request a new access token using the refresh token
+    const authOptions = {
+        method: 'POST',
+        headers: {
+        'Authorization': 'Basic ' + Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'),
+        'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        }),
+    };
+
+    try {
+        const tokenResponse = await fetch(TOKEN_URL, authOptions);
+        const tokenData = await tokenResponse.json();
+
+        if (tokenResponse.ok) {
+        const newAccessToken = tokenData.access_token;
+        res.json({ accessToken: newAccessToken });
+        } else {
+        res.status(tokenResponse.status).json({ error: 'Failed to refresh access token' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.get('/profile', async (req, res) => {
+    const access_token = req.session.access_token;
+
+    if (!access_token) {
+        return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    try {
+        const profileResponse = await fetch('https://api.spotify.com/v1/me', {
+        headers: { 'Authorization': 'Bearer ' + access_token },
+        });
+
+        if (profileResponse.ok) {
+        const profileData = await profileResponse.json();
+        res.json(profileData);
+        } else {
+        res.status(profileResponse.status).json({ error: 'Failed to fetch user profile from Spotify' });
+        }
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
