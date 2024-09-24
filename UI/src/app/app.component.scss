@@ -1,0 +1,40 @@
+@import "../theme/colors";
+
+:host::ng-deep {
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100wh;
+    }
+
+    .login-btn {
+        width: 20rem;
+        height: 10rem;
+        background-color: $neon-green;
+        color: $black;
+        font-size: 2rem;
+        border: none;
+        border-radius: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow:
+            0 0 40px 20px $white,
+            0 0 80px 40px $neon-yellow,
+            0 0 100px 50px $neon-green;
+
+        &:hover {
+            opacity: 0.70;
+            color: $white;
+            box-shadow:
+                0 0 40px 20px $white,
+                0 0 80px 40px $neon-green,
+                0 0 100px 50px $neon-yellow;
+        }
+
+        &>p {
+            margin: 0;
+        }
+    }
+}

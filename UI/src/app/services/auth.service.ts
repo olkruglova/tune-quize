@@ -19,7 +19,7 @@ export class AuthService {
         localStorage.setItem("access_token", accessToken);
         localStorage.setItem("refresh_token", refreshToken);
 
-        this.router.navigate([], {
+        this.router.navigate(["/main"], {
           queryParams: {},
           replaceUrl: true
         });

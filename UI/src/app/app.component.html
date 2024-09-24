@@ -1,6 +1,13 @@
-<div class="container">
-    <button (click)="login()">Login</button>
+<ng-container *ngIf="content.children.length === 1">
+    <div class="container">
+        <button class="login-btn" (click)="login()">
+            <p>Login to your</p>
+            <p>Spotify account</p>
+        </button>
+    </div>
+</ng-container>
+
+
+<div #content class="content">
+    <router-outlet></router-outlet>
 </div>
-
-
-<router-outlet></router-outlet>
