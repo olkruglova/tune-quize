@@ -3,18 +3,16 @@ import { Subscription } from "rxjs";
 import { SidebarComponentService } from "../sidebar/sidebar.component.service";
 import { Level } from "../sidebar/sidebar.model";
 import { CommonModule } from "@angular/common";
-import { RouterOutlet } from "@angular/router";
 
 @Component({
-  selector: "app-quiz",
-  templateUrl: "./quiz.component.html",
-  styleUrl: "./quiz.component.scss",
-  imports: [CommonModule, RouterOutlet],
+  selector: "app-level",
+  templateUrl: "./level.component.html",
+  styleUrl: "./level.component.scss",
+  imports: [CommonModule],
   standalone: true
 })
-export class QuizComponent implements OnInit, OnDestroy {
+export class LevelComponent implements OnInit, OnDestroy {
   public currentLevel: Level | null = null;
-  public userName: string = "User User";
 
   private subscription: Subscription = new Subscription();
 

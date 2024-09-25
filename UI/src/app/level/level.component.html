@@ -1,0 +1,8 @@
+<ng-container *ngIf="currentLevel">
+    <div class="quiz-container">
+        <div>Play a short preview of a song, and guess the track and the artist.</div>
+        <button [class]="'start-level-btn start-level-btn-' + currentLevel.id">
+            Start level {{ currentLevel.id }}
+        </button>
+    </div>
+</ng-container>

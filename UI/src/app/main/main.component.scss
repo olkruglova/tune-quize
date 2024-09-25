@@ -10,10 +10,19 @@
         flex-direction: column;
         justify-content: end;
         align-items: end;
-        width: 80%;
+        width: 85%;
+        height: 100%;
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: start;
+        height: 100%;
+        width: 100%;
     }
 
     .sidebar {
-        width: 20%;
+        width: 15%;
     }
 }

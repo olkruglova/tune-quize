@@ -1,4 +1,4 @@
-@import "../theme/colors";
+@import "../theme";
 
 :host::ng-deep {
     .container {
@@ -14,22 +14,22 @@
         height: 100%;
         padding: 3.5rem;
 
-        .content {
+        #content {
             width: 100%;
             height: 100%;
             padding: 3.5rem;
-            box-shadow: rgba(0, 0, 0, 0.4) 0px 30px 90px;
+            box-shadow: $box-shadow-main;
 
             &.green {
-                box-shadow: $neon-green 0px 0px 70px;
+                @include box-shadow-color($neon-green);
             }
 
             &.yellow {
-                box-shadow: $neon-yellow 0px 0px 70px;
+                @include box-shadow-color($neon-yellow);
             }
 
             &.orange {
-                box-shadow: $neon-orange 0px 0px 70px;
+                @include box-shadow-color($neon-orange);
             }
         }
     }

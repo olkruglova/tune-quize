@@ -1,11 +1,11 @@
 export type Endpoints = {
-  GetToken: string;
   Login: string;
   GetProfile: string;
+  Callback?: string;
 };
 
 export const API: Endpoints = {
-  GetToken: "http://localhost:3000/token",
   Login: "http://localhost:3000/login",
-  GetProfile: "http://localhost:3000/callback"
+  GetProfile: "http://localhost:3000/profile",
+  Callback: "http://localhost:3000/callback"
 };
