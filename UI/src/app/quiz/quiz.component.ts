@@ -4,6 +4,7 @@ import { SidebarComponentService } from "../sidebar/sidebar.component.service";
 import { Level } from "../sidebar/sidebar.model";
 import { CommonModule } from "@angular/common";
 import { RouterOutlet } from "@angular/router";
+import { UserService } from "../services/user.service";
 
 @Component({
   selector: "app-quiz",
@@ -18,12 +19,18 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private subscription: Subscription = new Subscription();
 
-  constructor(private sidebarService: SidebarComponentService) {}
+  constructor(private sidebarService: SidebarComponentService, private userService: UserService) {}
 
   ngOnInit() {
     this.subscription.add(
       this.sidebarService.currentLevel$.subscribe((level: Level | null) => {
         this.currentLevel = level;
+      })
+    );
+
+    this.subscription.add(
+      this.userService.userProfile$.subscribe((user: any) => {
+        this.userName = user?.display_name;
       })
     );
   }

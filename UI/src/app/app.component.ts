@@ -1,9 +1,9 @@
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
-import { Subscription } from "rxjs";
-import { AuthService } from "./services/auth.service";
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
+import { filter, Subscription } from "rxjs";
 import { SidebarComponentService } from "./sidebar/sidebar.component.service";
+import { UserService } from "./services/user.service";
 
 @Component({
   selector: "app-root",
@@ -15,12 +15,14 @@ import { SidebarComponentService } from "./sidebar/sidebar.component.service";
 export class AppComponent implements OnInit, OnDestroy {
   private subscription: Subscription = new Subscription();
 
-  constructor(private authService: AuthService, private sidebarService: SidebarComponentService) {}
+  constructor(private userService: UserService, private sidebarService: SidebarComponentService, private router: Router) {}
 
   @ViewChild("content") content!: ElementRef;
 
   ngOnInit(): void {
-    this.authService.handleAuth();
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+      this.userService.getProfileData();
+    });
 
     this.subscription.add(
       this.sidebarService.currentLevel$.subscribe((level) => {
