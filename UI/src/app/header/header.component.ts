@@ -1,15 +1,12 @@
 import { Subscription } from "rxjs";
 import { UserService } from "./../services/user.service";
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { faUser } from "@fortawesome/free-solid-svg-icons";
 
 @Component({
   selector: "app-header",
   templateUrl: "./header.component.html",
   styleUrl: "./header.component.scss",
-  standalone: true,
-  imports: [FontAwesomeModule]
+  standalone: true
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   public userAvatarUrl: string = "";

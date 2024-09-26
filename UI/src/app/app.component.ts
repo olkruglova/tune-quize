@@ -20,10 +20,6 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild("content") content!: ElementRef;
 
   ngOnInit(): void {
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
-      this.userService.getProfileData();
-    });
-
     this.subscription.add(
       this.sidebarService.currentLevel$.subscribe((level) => {
         if (this.content) {

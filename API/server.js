@@ -126,8 +126,6 @@ app.get("/refresh_token", async (req, res) => {
 app.get('/api/profile', async (req, res) => {
     const access_token = req.session.accessToken;
   
-    console.log('access_token:', access_token);
-  
     if (!access_token) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
@@ -139,7 +137,7 @@ app.get('/api/profile', async (req, res) => {
   
     try {
       const profileResponse = await fetch('https://api.spotify.com/v1/me', {
-        headers: headers // Use headers as part of the fetch options
+        headers: headers
       });
   
       if (profileResponse.ok) {
@@ -150,6 +148,35 @@ app.get('/api/profile', async (req, res) => {
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
+  app.get('/api/top-tracks', async (req, res) => {
+    const access_token = req.session.accessToken;
+  
+    if (!access_token) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+  
+    const headers = {
+      Authorization: `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
+    };
+  
+    try {
+      const profileResponse = await fetch('https://api.spotify.com/v1/me/top/tracks', {
+        headers: headers
+      });
+  
+      if (profileResponse.ok) {
+        const profileData = await profileResponse.json();
+        res.json(profileData);
+      } else {
+        res.status(profileResponse.status).json({ error: 'Failed to fetch user top tracks from Spotify' });
+      }
+    } catch (error) {
+      console.error('Error fetching user top tracks:', error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
