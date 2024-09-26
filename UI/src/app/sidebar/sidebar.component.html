@@ -1,6 +1,6 @@
 <div>
     <div *ngFor="let item of menuItems" class="vinyl-container" [routerLink]="[item.routerLink]"
-        routerLinkActive="active">
+        routerLinkActive="active" (click)="setLevel(item)">
         <div [ngClass]="'vinyl ' + item.class"></div>
         <div [ngClass]="'box-vinyl box-' + item.class">
             <div class="box-line-vinyl">{{ item.title }}</div>

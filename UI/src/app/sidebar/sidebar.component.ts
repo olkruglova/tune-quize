@@ -25,15 +25,19 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscription.add(
-      this.route?.firstChild?.url.subscribe((segments) => {
+      this.route.firstChild?.url.subscribe((segments) => {
         const levelId = +segments[1].path;
         const level = this.menuItems.find((item) => item.id === levelId);
 
         if (level) {
-          this.componentService.currentLevel$.next(level);
+          this.setLevel(level);
         }
       })
     );
+  }
+
+  setLevel(level: Level): void {
+    this.componentService.currentLevel$.next(level);
   }
 
   ngOnDestroy(): void {

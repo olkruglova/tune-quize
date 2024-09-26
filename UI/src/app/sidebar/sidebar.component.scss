@@ -9,8 +9,11 @@
         align-items: center;
         height: 100px;
         width: 100px;
-        margin: 2rem 0;
         box-shadow: rgba(0, 0, 0, 0.4) 0px 10px 20px;
+
+        +.vinyl-container {
+            margin-top: 2rem;
+        }
 
         &.active {
             .vinyl {
