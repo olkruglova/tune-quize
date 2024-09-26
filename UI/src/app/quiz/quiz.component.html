@@ -1,0 +1,10 @@
+<ng-container *ngIf="!currentLevel">
+    <div class="welcome-container">
+        <div>Hello <strong>{{ userName }}</strong>!</div>
+        <div>Take a quiz based on your favourite tunes.</div>
+        <div>Select a Level on the left.</div>
+        <div>Then, let's get started.</div>
+    </div>
+</ng-container>
+
+<router-outlet></router-outlet>

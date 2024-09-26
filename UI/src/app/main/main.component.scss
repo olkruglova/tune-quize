@@ -1,0 +1,28 @@
+:host::ng-deep {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    align-items: start;
+
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: end;
+        align-items: end;
+        width: 85%;
+        height: 100%;
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: start;
+        height: 100%;
+        width: 100%;
+    }
+
+    .sidebar {
+        width: 15%;
+    }
+}

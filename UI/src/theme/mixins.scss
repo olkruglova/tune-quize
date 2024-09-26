@@ -1,0 +1,30 @@
+@mixin background-image($url: null) {
+    background-image: url($url);
+    background-size: cover;
+    background-position: center;
+}
+
+@mixin box-shadow-color($color: $neon-green) {
+    box-shadow: $color 0px 0px 70px -35px;
+}
+
+@mixin box-shadow-color-squizzed($color: $neon-green) {
+    box-shadow: $color 0px 0px 60px -40px;
+}
+
+@mixin start-level-btn($color: $neon-green) {
+    width: 10rem;
+    height: 4rem;
+    background-color: $black;
+    font-size: 1rem;
+    margin-top: 4rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    @include box-shadow-color($color);
+
+    &:hover {
+        @include box-shadow-color-squizzed($color);
+    }
+}

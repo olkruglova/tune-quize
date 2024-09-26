@@ -1,0 +1,9 @@
+<div>
+    <div *ngFor="let item of menuItems" class="vinyl-container" [routerLink]="[item.routerLink]"
+        routerLinkActive="active">
+        <div [ngClass]="'vinyl ' + item.class"></div>
+        <div [ngClass]="'box-vinyl box-' + item.class">
+            <div class="box-line-vinyl">{{ item.title }}</div>
+        </div>
+    </div>
+</div>

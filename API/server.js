@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import querystring from "querystring";
 import crypto from "crypto";
+import session from 'express-session';
 
 const app = express();
 const PORT = 3000;
@@ -18,14 +19,24 @@ const generateRandomString = (length) => {
 };
 
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:4200',
+    methods: 'GET,POST',
+    allowedHeaders: 'Authorization,Content-Type'
+  }),
+  session({
+    secret: 'your_secret_key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false },
+  })
+);
 
-// const stateKey = 'spotify_auth_state';
 const scope =
       'user-read-private user-read-email user-read-recently-played user-top-read user-follow-read user-follow-modify playlist-read-private playlist-read-collaborative playlist-modify-public';
 
 app.get("/login", (req, res) => {
-    const state = generateRandomString(16); // Generate a random state for CSRF protection
+    const state = generateRandomString(16);
 
     // Redirect the user to Spotify for authorization
     const queryParams = querystring.stringify({
@@ -65,8 +76,10 @@ app.get("/callback", async (req, res) => {
       if (tokenResponse.ok) {
         const accessToken = tokenData.access_token;
         const refreshToken = tokenData.refresh_token;
+
+        req.session.accessToken = accessToken;
   
-        res.redirect(`http://localhost:4200/?access_token=${encodeURIComponent(accessToken)}&refresh_token=${encodeURIComponent(refreshToken)}`);
+        res.redirect(`http://localhost:4200/quiz`);
       } else {
         res.status(tokenResponse.status).json({ error: 'Failed to get access token from Spotify' });
       }
@@ -110,29 +123,36 @@ app.get("/refresh_token", async (req, res) => {
     }
 });
 
-app.get('/profile', async (req, res) => {
-    const access_token = req.session.access_token;
-
+app.get('/api/profile', async (req, res) => {
+    const access_token = req.session.accessToken;
+  
+    console.log('access_token:', access_token);
+  
     if (!access_token) {
-        return res.status(401).json({ error: 'User not authenticated' });
+      return res.status(401).json({ error: 'User not authenticated' });
     }
-
+  
+    const headers = {
+      Authorization: `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
+    };
+  
     try {
-        const profileResponse = await fetch('https://api.spotify.com/v1/me', {
-        headers: { 'Authorization': 'Bearer ' + access_token },
-        });
-
-        if (profileResponse.ok) {
+      const profileResponse = await fetch('https://api.spotify.com/v1/me', {
+        headers: headers // Use headers as part of the fetch options
+      });
+  
+      if (profileResponse.ok) {
         const profileData = await profileResponse.json();
         res.json(profileData);
-        } else {
+      } else {
         res.status(profileResponse.status).json({ error: 'Failed to fetch user profile from Spotify' });
-        }
+      }
     } catch (error) {
-        console.error('Error fetching user profile:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Error fetching user profile:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
-});
+  });
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

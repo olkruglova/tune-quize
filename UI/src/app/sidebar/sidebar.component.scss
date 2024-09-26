@@ -1,0 +1,107 @@
+@import '../../theme/colors';
+@import '../../theme/mixins';
+
+:host::ng-deep {
+    .vinyl-container {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100px;
+        width: 100px;
+        margin: 2rem 0;
+        box-shadow: rgba(0, 0, 0, 0.4) 0px 10px 20px;
+
+        &.active {
+            .vinyl {
+                left: 55%;
+            }
+        }
+
+        .vinyl {
+            border-radius: 50%;
+            width: 84px;
+            height: 84px;
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background-color: $white;
+            transition: left 0.5s ease;
+            box-shadow: rgba(0, 0, 0, 0.4) 5px 2px 10px;
+
+            &.run {
+                animation: spin 10s linear infinite;
+            }
+
+        }
+
+        .vinyl-I {
+            @include background-image("../assets/images/vinyl-green.svg");
+        }
+
+        .vinyl-II {
+            @include background-image("../assets/images/vinyl-yellow.svg");
+        }
+
+        .vinyl-III {
+            @include background-image("../assets/images/vinyl-orange.svg");
+        }
+
+        .box-vinyl {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100px;
+            height: 100px;
+            padding: 9px;
+            box-sizing: border-box;
+
+            &:hover {
+                cursor: pointer;
+            }
+
+            .box-line-vinyl {
+                background: transparent;
+                border: 1px solid $white;
+                height: 100%;
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: $black;
+            }
+        }
+
+        .box-vinyl-I {
+            background-color: $neon-green;
+        }
+
+        .box-vinyl-II {
+            background-color: $neon-yellow;
+        }
+
+        .box-vinyl-III {
+            background-color: $neon-orange;
+        }
+    }
+
+
+}
+
+
+
+// box-shadow:
+//     0 0 40px 20px $white,
+//     0 0 80px 40px $neon-yellow,
+//     0 0 100px 50px $neon-green;
+// animation: spin 10s linear infinite;
+
+// @keyframes spin {
+//     0% {
+//         transform: rotate(0deg);
+//     }
+
+//     100% {
+//         transform: rotate(360deg);
+//     }
+// }
