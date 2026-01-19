@@ -1,7 +1,7 @@
 [build]
   base = "UI"
   command = "npm run build"
-  publish = "dist"
+  publish = "dist/tune-quize/browser"
 
 [[redirects]]
   from = "/*"
