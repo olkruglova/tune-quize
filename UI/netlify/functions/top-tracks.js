@@ -12,7 +12,7 @@ exports.handler = async (event, context) => {
   const accessToken = authHeader.split(" ")[1];
 
   try {
-    const response = await fetch("https://api.spotify.com/v1/me/top/tracks", {
+    const response = await fetch("https://api.spotify.com/v1/search?q=genre:pop&type=track&limit=50", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json"
