@@ -7,15 +7,16 @@ import { UserService } from "../services/user.service";
 import { Track } from "../models/track.model";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlay, faPause, faStop } from "@fortawesome/free-solid-svg-icons";
+import { PlayerControlsService } from "./player-controls.component.service";
 
 @Component({
-  selector: "app-level",
-  templateUrl: "./level.component.html",
-  styleUrl: "./level.component.scss",
+  selector: "app-player-controls",
+  templateUrl: "./player-controls.component.html",
+  styleUrls: ["./player-controls.component.scss"],
   imports: [CommonModule, FontAwesomeModule],
   standalone: true
 })
-export class LevelComponent implements OnInit, OnDestroy {
+export class PlayerControlsComponent implements OnInit, OnDestroy {
   public currentLevel: Level | null = null;
   public tracks: Track[] | null = null;
   public currentTracks: Track[] | null = null;
@@ -24,10 +25,14 @@ export class LevelComponent implements OnInit, OnDestroy {
   public stopIcon = faStop;
   public randomTrackNum: number = 0;
 
-  private audio = new Audio();
-  private subscription: Subscription = new Subscription();
+  private readonly audio = new Audio();
+  private readonly subscription: Subscription = new Subscription();
 
-  constructor(private sidebarService: SidebarComponentService, private userService: UserService) {}
+  constructor(
+    private readonly sidebarService: SidebarComponentService,
+    private readonly userService: UserService,
+    private readonly playerControlsService: PlayerControlsService
+  ) {}
 
   ngOnInit() {
     this.subscription.add(
@@ -70,27 +75,36 @@ export class LevelComponent implements OnInit, OnDestroy {
   }
 
   playPreview(): void {
-    const previewUrl = this.currentTracks?.[this.randomTrackNum].preview_url;
+    const trackId = this.currentTracks?.[this.randomTrackNum].id;
 
-    if (!previewUrl) {
-      console.warn("No preview URL available for this track.");
+    if (!trackId) {
       return;
     }
 
-    if (this.audio.src !== previewUrl) {
-      this.audio.pause();
-    }
+    this.playerControlsService.getTrack(trackId).subscribe((track) => {
+      if (track) {
+        const previewUrl = track.preview_url;
 
-    this.audio.src = previewUrl;
-    this.audio.load();
-    this.audio
-      .play()
-      .then(() => {
-        console.log("Playing preview:", previewUrl);
-      })
-      .catch((error) => {
-        console.error("Error playing preview:", error);
-      });
+        if (!previewUrl) {
+          return;
+        }
+
+        if (this.audio.src !== previewUrl) {
+          this.audio.pause();
+        }
+
+        this.audio.src = previewUrl;
+        this.audio.load();
+        this.audio
+          .play()
+          .then(() => {
+            console.log("Playing preview:", previewUrl);
+          })
+          .catch((error) => {
+            console.error("Error playing preview:", error);
+          });
+      }
+    });
   }
 
   pausePreview(): void {

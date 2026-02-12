@@ -1,6 +1,6 @@
 import { Routes } from "@angular/router";
 import { MainComponent } from "./main/main.component";
-import { LevelComponent } from "./level/level.component";
+import { PlayerControlsComponent } from "./player-controls/player-controls.component";
 
 export const routes: Routes = [
   {
@@ -9,7 +9,7 @@ export const routes: Routes = [
     children: [
       {
         path: "level/:level",
-        component: LevelComponent,
+        component: PlayerControlsComponent,
         pathMatch: "full"
       }
     ]

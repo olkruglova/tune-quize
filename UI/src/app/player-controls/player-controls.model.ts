@@ -1,0 +1,68 @@
+export interface SpotifyImage {
+  url: string;
+  height: number;
+  width: number;
+}
+
+export interface SpotifyExternalUrls {
+  spotify: string;
+}
+
+export interface SpotifyRestrictions {
+  reason: string;
+}
+
+export interface SpotifyArtist {
+  external_urls: SpotifyExternalUrls;
+  href: string;
+  id: string;
+  name: string;
+  type: "artist";
+  uri: string;
+}
+
+export interface SpotifyAlbum {
+  album_type: string;
+  total_tracks: number;
+  available_markets: string[];
+  external_urls: SpotifyExternalUrls;
+  href: string;
+  id: string;
+  images: SpotifyImage[];
+  name: string;
+  release_date: string;
+  release_date_precision: "year" | "month" | "day";
+  restrictions?: SpotifyRestrictions;
+  type: "album";
+  uri: string;
+  artists: SpotifyArtist[];
+}
+
+export interface SpotifyExternalIds {
+  isrc?: string;
+  ean?: string;
+  upc?: string;
+}
+
+export interface SpotifyTrack {
+  album: SpotifyAlbum;
+  artists: SpotifyArtist[];
+  available_markets: string[];
+  disc_number: number;
+  duration_ms: number;
+  explicit: boolean;
+  external_ids: SpotifyExternalIds;
+  external_urls: SpotifyExternalUrls;
+  href: string;
+  id: string;
+  is_playable?: boolean;
+  linked_from?: Record<string, unknown>;
+  restrictions?: SpotifyRestrictions;
+  name: string;
+  popularity: number;
+  preview_url: string | null;
+  track_number: number;
+  type: "track";
+  uri: string;
+  is_local: boolean;
+}

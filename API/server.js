@@ -7,11 +7,11 @@ import crypto from 'crypto';
 import session from 'express-session';
 
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 
 const CLIENT_ID = '65c5ab46f30248c5b2a6f8e3a55ceede';
 const CLIENT_SECRET = 'a15977f721834c73a3b30875759b5794';
-const REDIRECT_URI = 'http://localhost:3000/callback';
+const REDIRECT_URI = 'http://127.0.0.1:3001/callback';
 const TOKEN_URL = 'https://accounts.spotify.com/api/token';
 
 const generateRandomString = (length) => {
@@ -56,6 +56,7 @@ app.get('/callback', async (req, res) => {
     if (!code) {
         return res.status(400).send('Authorization code missing');
     }
+    console.log('Exchanging code with Spotify...');
 
     const authOptions = {
         method: 'POST',
@@ -72,7 +73,9 @@ app.get('/callback', async (req, res) => {
 
     try {
         const tokenResponse = await fetch(TOKEN_URL, authOptions);
+        console.log('Spotify response status:', tokenResponse.status);
         const tokenData = await tokenResponse.json();
+        console.log('Spotify token data:', tokenData);
 
         if (tokenResponse.ok) {
             const accessToken = tokenData.access_token;
@@ -82,6 +85,7 @@ app.get('/callback', async (req, res) => {
 
             res.redirect(`http://localhost:4200/quiz`);
         } else {
+            console.log('Returning error status:', tokenResponse.status);
             res.status(tokenResponse.status).json({ error: 'Failed to get access token from Spotify' });
         }
     } catch (error) {
@@ -166,12 +170,12 @@ app.get('/api/top-tracks', async (req, res) => {
     };
 
     try {
-        const profileResponse = await fetch('https://api.spotify.com/v1/search?q=genre:pop&type=track&limit=50', {
+        const topTracksResponse = await fetch('https://api.spotify.com/v1/me/top/tracks', {
             headers: headers,
         });
 
-        if (profileResponse.ok) {
-            const profileData = await profileResponse.json();
+        if (topTracksResponse.ok) {
+            const topTracksData = await topTracksResponse.json();
             res.json(profileData);
         } else {
             res.status(profileResponse.status).json({ error: 'Failed to fetch user top tracks from Spotify' });
@@ -182,6 +186,36 @@ app.get('/api/top-tracks', async (req, res) => {
     }
 });
 
+app.get('/api/tracks/:id', async (req, res) => {
+    const access_token = req.session.accessToken;
+
+    if (!access_token) {
+        return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    const headers = {
+        Authorization: `Bearer ${access_token}`,
+        'Content-Type': 'application/json',
+    };
+
+    try {
+        const trackId = req.params.id;
+        const trackResponse = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+            headers: headers,
+        });
+
+        if (trackResponse.ok) {
+            const trackData = await trackResponse.json();
+            res.json(trackData);
+        } else {
+            res.status(trackResponse.status).json({ error: 'Failed to fetch track from Spotify' });
+        }
+    } catch (error) {
+        console.error('Error fetching track:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on http://127.0.0.1:${PORT}`);
 });
