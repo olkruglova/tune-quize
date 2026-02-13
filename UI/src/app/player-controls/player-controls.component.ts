@@ -53,8 +53,8 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
   }
 
   shaffleTracks(tracks: Track[]) {
-    let currentIndex = tracks.length,
-      randomIndex;
+    let currentIndex = tracks.length;
+    let randomIndex;
 
     while (currentIndex != 0) {
       randomIndex = Math.floor(Math.random() * currentIndex);
@@ -63,11 +63,14 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
       [tracks[currentIndex], tracks[randomIndex]] = [tracks[randomIndex], tracks[currentIndex]];
     }
 
+    console.log("Shuffled tracks:", tracks);
+
     const currentTracks = tracks.slice(0, 3);
     currentTracks.forEach((track) => {
       track.artistsText = track.artists.map((artist) => artist.name).join(", ");
     });
 
+    console.log("Current tracks:", currentTracks);
     const randomNum = Math.floor(Math.random() * (2 - 0 + 1) + 0);
     this.randomTrackNum = randomNum;
 
@@ -75,36 +78,27 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
   }
 
   playPreview(): void {
-    const trackId = this.currentTracks?.[this.randomTrackNum].id;
+    const previewUrl = this.currentTracks?.[this.randomTrackNum].preview_url;
 
-    if (!trackId) {
+    if (!previewUrl) {
+      console.warn("No preview URL available for this track.");
       return;
     }
 
-    this.playerControlsService.getTrack(trackId).subscribe((track) => {
-      if (track) {
-        const previewUrl = track.preview_url;
+    if (this.audio.src !== previewUrl) {
+      this.audio.pause();
+    }
 
-        if (!previewUrl) {
-          return;
-        }
-
-        if (this.audio.src !== previewUrl) {
-          this.audio.pause();
-        }
-
-        this.audio.src = previewUrl;
-        this.audio.load();
-        this.audio
-          .play()
-          .then(() => {
-            console.log("Playing preview:", previewUrl);
-          })
-          .catch((error) => {
-            console.error("Error playing preview:", error);
-          });
-      }
-    });
+    this.audio.src = previewUrl;
+    this.audio.load();
+    this.audio
+      .play()
+      .then(() => {
+        console.log("Playing preview:", previewUrl);
+      })
+      .catch((error) => {
+        console.error("Error playing preview:", error);
+      });
   }
 
   pausePreview(): void {
