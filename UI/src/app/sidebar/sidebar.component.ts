@@ -1,15 +1,15 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { Level } from "./sidebar.model";
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
+import { Subscription } from "rxjs";
 import { SidebarComponentService } from "./sidebar.component.service";
-import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
-import { filter, Subscription } from "rxjs";
+import { Level } from "./sidebar.model";
 
 @Component({
   selector: "app-sidebar",
   templateUrl: "./sidebar.component.html",
   styleUrl: "./sidebar.component.scss",
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   standalone: true
 })
 export class SidebarComponent implements OnInit, OnDestroy {
@@ -21,7 +21,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   private subscription: Subscription = new Subscription();
 
-  constructor(private componentService: SidebarComponentService, private route: ActivatedRoute, private router: Router) {}
+  constructor(
+    private componentService: SidebarComponentService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     this.subscription.add(

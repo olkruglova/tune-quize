@@ -7,11 +7,11 @@ import crypto from 'crypto';
 import session from 'express-session';
 
 const app = express();
-const PORT = 3001;
+const PORT = 3007;
 
 const CLIENT_ID = '65c5ab46f30248c5b2a6f8e3a55ceede';
 const CLIENT_SECRET = 'a15977f721834c73a3b30875759b5794';
-const REDIRECT_URI = 'http://127.0.0.1:3001/callback';
+const REDIRECT_URI = 'http://127.0.0.1:3007/callback';
 const TOKEN_URL = 'https://accounts.spotify.com/api/token';
 
 const generateRandomString = (length) => {
@@ -81,9 +81,10 @@ app.get('/callback', async (req, res) => {
             const accessToken = tokenData.access_token;
             const refreshToken = tokenData.refresh_token;
 
-            req.session.accessToken = accessToken;
+            const params = new URLSearchParams({ access_token: accessToken });
+            if (refreshToken) params.set('refresh_token', refreshToken);
 
-            res.redirect(`http://localhost:4200/quiz`);
+            res.redirect(`http://localhost:4200/quiz#${params.toString()}`);
         } else {
             console.log('Returning error status:', tokenResponse.status);
             res.status(tokenResponse.status).json({ error: 'Failed to get access token from Spotify' });
@@ -129,7 +130,7 @@ app.get('/refresh_token', async (req, res) => {
 });
 
 app.get('/api/profile', async (req, res) => {
-    const access_token = req.session.accessToken;
+    const access_token = req.headers.authorization?.split(' ')[1] || req.session.accessToken;
 
     if (!access_token) {
         return res.status(401).json({ error: 'User not authenticated' });
@@ -158,7 +159,7 @@ app.get('/api/profile', async (req, res) => {
 });
 
 app.get('/api/top-tracks', async (req, res) => {
-    const access_token = req.session.accessToken;
+    const access_token = req.headers.authorization?.split(' ')[1] || req.session.accessToken;
 
     if (!access_token) {
         return res.status(401).json({ error: 'User not authenticated' });
@@ -170,15 +171,31 @@ app.get('/api/top-tracks', async (req, res) => {
     };
 
     try {
-        const topTracksResponse = await fetch('https://api.spotify.com/v1/me/top/tracks', {
+        const topTracksResponse = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=50', {
             headers: headers,
         });
 
         if (topTracksResponse.ok) {
             const topTracksData = await topTracksResponse.json();
-            res.json(profileData);
+
+            const tracksWithPreviews = await Promise.all(
+                topTracksData.items.map(async (track) => {
+                    try {
+                        const artist = track.artists[0]?.name || '';
+                        const query = encodeURIComponent(`artist:"${artist}" track:"${track.name}"`);
+                        const deezerRes = await fetch(`https://api.deezer.com/search?q=${query}&limit=1`);
+                        const deezerData = await deezerRes.json();
+                        const preview = deezerData.data?.[0]?.preview || null;
+                        return { ...track, preview_url: preview };
+                    } catch {
+                        return track;
+                    }
+                })
+            );
+
+            res.json({ ...topTracksData, items: tracksWithPreviews.filter((t) => t.preview_url) });
         } else {
-            res.status(profileResponse.status).json({ error: 'Failed to fetch user top tracks from Spotify' });
+            res.status(topTracksResponse.status).json({ error: 'Failed to fetch user top tracks from Spotify' });
         }
     } catch (error) {
         console.error('Error fetching user top tracks:', error);
@@ -187,7 +204,7 @@ app.get('/api/top-tracks', async (req, res) => {
 });
 
 app.get('/api/tracks/:id', async (req, res) => {
-    const access_token = req.session.accessToken;
+    const access_token = req.headers.authorization?.split(' ')[1] || req.session.accessToken;
 
     if (!access_token) {
         return res.status(401).json({ error: 'User not authenticated' });
