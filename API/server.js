@@ -18,6 +18,35 @@ const generateRandomString = (length) => {
     return crypto.randomBytes(length).toString('hex');
 };
 
+const POPULAR_QUERIES = [
+    'year:2024 genre:pop',
+    'year:2024 genre:hip-hop',
+    'year:2023 genre:pop',
+    'year:2024 genre:r-n-b',
+    'year:2023 genre:hip-hop',
+    'year:2024 genre:latin',
+];
+
+const RANDOM_CHARS = 'abcdefghijklmnopqrstuvwxyz';
+
+async function enrichWithDeezerPreviews(tracks) {
+    const enriched = await Promise.all(
+        tracks.map(async (track) => {
+            try {
+                const artist = track.artists[0]?.name || '';
+                const query = encodeURIComponent(`artist:"${artist}" track:"${track.name}"`);
+                const deezerRes = await fetch(`https://api.deezer.com/search?q=${query}&limit=1`);
+                const deezerData = await deezerRes.json();
+                const preview = deezerData.data?.[0]?.preview || null;
+                return { ...track, preview_url: preview };
+            } catch {
+                return track;
+            }
+        }),
+    );
+    return enriched.filter((t) => t.preview_url);
+}
+
 app.use(bodyParser.json());
 app.use(
     cors({
@@ -171,29 +200,15 @@ app.get('/api/top-tracks', async (req, res) => {
     };
 
     try {
-        const topTracksResponse = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=50', {
+        const timeRange = req.query.time_range || 'short_term';
+        const topTracksResponse = await fetch(`https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=${timeRange}`, {
             headers: headers,
         });
 
         if (topTracksResponse.ok) {
             const topTracksData = await topTracksResponse.json();
-
-            const tracksWithPreviews = await Promise.all(
-                topTracksData.items.map(async (track) => {
-                    try {
-                        const artist = track.artists[0]?.name || '';
-                        const query = encodeURIComponent(`artist:"${artist}" track:"${track.name}"`);
-                        const deezerRes = await fetch(`https://api.deezer.com/search?q=${query}&limit=1`);
-                        const deezerData = await deezerRes.json();
-                        const preview = deezerData.data?.[0]?.preview || null;
-                        return { ...track, preview_url: preview };
-                    } catch {
-                        return track;
-                    }
-                })
-            );
-
-            res.json({ ...topTracksData, items: tracksWithPreviews.filter((t) => t.preview_url) });
+            const enriched = await enrichWithDeezerPreviews(topTracksData.items);
+            res.json({ items: enriched });
         } else {
             res.status(topTracksResponse.status).json({ error: 'Failed to fetch user top tracks from Spotify' });
         }
@@ -203,35 +218,85 @@ app.get('/api/top-tracks', async (req, res) => {
     }
 });
 
-app.get('/api/tracks/:id', async (req, res) => {
-    const access_token = req.headers.authorization?.split(' ')[1] || req.session.accessToken;
+app.get('/api/tracks/popular', async (req, res) => {
+    const access_token = req.headers.authorization?.split(' ')[1];
+    if (!access_token) return res.status(401).json({ error: 'User not authenticated' });
 
-    if (!access_token) {
-        return res.status(401).json({ error: 'User not authenticated' });
-    }
-
-    const headers = {
-        Authorization: `Bearer ${access_token}`,
-        'Content-Type': 'application/json',
-    };
+    const batch = parseInt(req.query.batch) || 0;
+    const query = encodeURIComponent(POPULAR_QUERIES[batch % POPULAR_QUERIES.length]);
+    const offset = Math.floor(Math.random() * 100);
+    const headers = { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' };
 
     try {
-        const trackId = req.params.id;
-        const trackResponse = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
-            headers: headers,
-        });
+        const response = await fetch(
+            `https://api.spotify.com/v1/search?q=${query}&type=track&limit=50&offset=${offset}&market=from_token`,
+            { headers },
+        );
+        if (!response.ok) return res.status(response.status).json({ error: 'Failed to fetch popular tracks' });
 
-        if (trackResponse.ok) {
-            const trackData = await trackResponse.json();
-            res.json(trackData);
-        } else {
-            res.status(trackResponse.status).json({ error: 'Failed to fetch track from Spotify' });
-        }
+        const data = await response.json();
+        const enriched = await enrichWithDeezerPreviews(data.tracks.items);
+        res.json({ items: enriched });
     } catch (error) {
-        console.error('Error fetching track:', error);
+        console.error('Error fetching popular tracks:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+app.get('/api/tracks/random', async (req, res) => {
+    const access_token = req.headers.authorization?.split(' ')[1];
+    if (!access_token) return res.status(401).json({ error: 'User not authenticated' });
+
+    const batch = parseInt(req.query.batch) || 0;
+    const char = RANDOM_CHARS[batch % RANDOM_CHARS.length];
+    const offset = Math.floor(Math.random() * 500);
+    const headers = { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' };
+
+    try {
+        const response = await fetch(
+            `https://api.spotify.com/v1/search?q=${char}&type=track&limit=50&offset=${offset}`,
+            { headers },
+        );
+        if (!response.ok) return res.status(response.status).json({ error: 'Failed to fetch random tracks' });
+
+        const data = await response.json();
+        const enriched = await enrichWithDeezerPreviews(data.tracks.items);
+        res.json({ items: enriched });
+    } catch (error) {
+        console.error('Error fetching random tracks:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// app.get('/api/tracks/:id', async (req, res) => {
+//     const access_token = req.headers.authorization?.split(' ')[1] || req.session.accessToken;
+
+//     if (!access_token) {
+//         return res.status(401).json({ error: 'User not authenticated' });
+//     }
+
+//     const headers = {
+//         Authorization: `Bearer ${access_token}`,
+//         'Content-Type': 'application/json',
+//     };
+
+//     try {
+//         const trackId = req.params.id;
+//         const trackResponse = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+//             headers: headers,
+//         });
+
+//         if (trackResponse.ok) {
+//             const trackData = await trackResponse.json();
+//             res.json(trackData);
+//         } else {
+//             res.status(trackResponse.status).json({ error: 'Failed to fetch track from Spotify' });
+//         }
+//     } catch (error) {
+//         console.error('Error fetching track:', error);
+//         res.status(500).json({ error: 'Internal Server Error' });
+//     }
+// });
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://127.0.0.1:${PORT}`);
