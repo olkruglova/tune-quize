@@ -5,4 +5,5 @@ export interface Level {
   class: string;
   color: string;
   routerLink: string;
+  points: number;
 }

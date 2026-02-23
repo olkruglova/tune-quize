@@ -42,6 +42,16 @@
                     margin-top: 2rem;
                 }
 
+                &.block--correct {
+                    border: 3px solid #00e676;
+                    box-shadow: 0 0 12px rgba(0, 230, 118, 0.5);
+                }
+
+                &.block--wrong {
+                    border: 3px solid #ff1744;
+                    box-shadow: 0 0 12px rgba(255, 23, 68, 0.3);
+                }
+
                 .block-title {
                     font-size: 1.25rem;
                     margin-bottom: 1rem;

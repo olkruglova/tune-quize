@@ -5,8 +5,14 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        flex-direction: column;
 
+        .score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: $cream;
+            margin-right: 1rem;
+            letter-spacing: 0.05em;
+        }
 
         .user-avatar {
             border-radius: 50%;

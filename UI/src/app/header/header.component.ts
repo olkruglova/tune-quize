@@ -1,19 +1,26 @@
 import { Subscription } from "rxjs";
 import { UserService } from "./../services/user.service";
+import { ScoreService } from "../services/score.service";
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: "app-header",
   templateUrl: "./header.component.html",
-  styleUrl: "./header.component.scss",
-  standalone: true
+  styleUrls: ["./header.component.scss"],
+  standalone: true,
+  imports: [CommonModule]
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   public userAvatarUrl: string = "";
 
   private subscription: Subscription = new Subscription();
 
-  constructor(private userService: UserService) {}
+  public score$;
+
+  constructor(private readonly userService: UserService, private readonly scoreService: ScoreService) {
+    this.score$ = this.scoreService.score$;
+  }
 
   ngOnInit() {
     this.subscription.add(
