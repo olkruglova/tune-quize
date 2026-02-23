@@ -14,9 +14,9 @@ import { Level } from "./sidebar.model";
 })
 export class SidebarComponent implements OnInit, OnDestroy {
   public menuItems: Level[] = [
-    { id: 1, name: "level1", title: "Level 1", class: "vinyl-I", color: "green", routerLink: "/quiz/level/1" },
-    { id: 2, name: "level2", title: "Level 2", class: "vinyl-II", color: "yellow", routerLink: "/quiz/level/2" },
-    { id: 3, name: "level3", title: "Level 3", class: "vinyl-III", color: "orange", routerLink: "/quiz/level/3" }
+    { id: 1, name: "level1", title: "Level 1", class: "vinyl-I", color: "green", routerLink: "/quiz/level/1", points: 10 },
+    { id: 2, name: "level2", title: "Level 2", class: "vinyl-II", color: "yellow", routerLink: "/quiz/level/2", points: 20 },
+    { id: 3, name: "level3", title: "Level 3", class: "vinyl-III", color: "orange", routerLink: "/quiz/level/3", points: 30 }
   ];
 
   private subscription: Subscription = new Subscription();
