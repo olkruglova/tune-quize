@@ -19,7 +19,6 @@ import { ScoreService } from "../services/score.service";
 })
 export class PlayerControlsComponent implements OnInit, OnDestroy {
   public currentLevel: Level | null = null;
-  public tracks: Track[] | null = null;
   public currentTracks: Track[] | null = null;
   public playIcon = faPlay;
   public pauseIcon = faPause;
@@ -27,6 +26,8 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
   public randomTrackNum: number = 0;
   public blockStates: ("correct" | "wrong" | null)[] = [null, null, null];
   public guessed = false;
+
+  private readonly pools: Record<number, Track[]> = { 1: [], 2: [], 3: [] };
 
   private readonly audio = new Audio();
   private readonly subscription: Subscription = new Subscription();
@@ -41,43 +42,62 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.subscription.add(
       this.sidebarService.currentLevel$.subscribe((level: Level | null) => {
-        this.currentLevel = level;
+        if (level && level.id !== this.currentLevel?.id) {
+          this.stopPreview();
+          this.currentTracks = null;
+          this.blockStates = [null, null, null];
+          this.guessed = false;
+          this.currentLevel = level;
+          const pool = this.pools[level.id];
+          if (pool.length >= 3) {
+            this.shaffleTracks();
+          } else {
+            this.userService.fetchTracks(level.id);
+          }
+        } else {
+          this.currentLevel = level;
+        }
       })
     );
 
     this.subscription.add(
-      this.userService.userTopTracks$.subscribe((topTracks: Track[] | null) => {
-        this.tracks = topTracks;
+      this.userService.trackBatch$.subscribe(({ level, tracks }) => {
+        const pool = this.pools[level];
+        const existingIds = new Set(pool.map((t) => t.id));
+        const newTracks = tracks.filter((t) => !existingIds.has(t.id));
+        pool.push(...newTracks);
 
-        if (topTracks) {
-          this.shaffleTracks(topTracks);
+        if (this.currentLevel?.id === level && this.currentTracks === null) {
+          this.shaffleTracks();
         }
       })
     );
   }
 
-  shaffleTracks(tracks: Track[]) {
-    let currentIndex = tracks.length;
-    let randomIndex;
+  shaffleTracks() {
+    if (!this.currentLevel) return;
+    const pool = this.pools[this.currentLevel.id];
+    if (pool.length < 3) return;
 
-    while (currentIndex != 0) {
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-
-      [tracks[currentIndex], tracks[randomIndex]] = [tracks[randomIndex], tracks[currentIndex]];
+    let i = pool.length;
+    while (i) {
+      const j = Math.floor(Math.random() * i--);
+      [pool[i], pool[j]] = [pool[j], pool[i]];
     }
 
-    const currentTracks = tracks.slice(0, 3);
+    const currentTracks = pool.splice(0, 3);
     currentTracks.forEach((track) => {
       track.artistsText = track.artists.map((artist) => artist.name).join(", ");
     });
 
-    const randomNum = Math.floor(Math.random() * (2 - 0 + 1) + 0);
-    this.randomTrackNum = randomNum;
-
+    this.randomTrackNum = Math.floor(Math.random() * 3);
     this.currentTracks = currentTracks;
     this.blockStates = [null, null, null];
     this.guessed = false;
+
+    if (pool.length < 20) {
+      this.userService.fetchTracks(this.currentLevel.id);
+    }
   }
 
   playPreview(): void {
@@ -125,7 +145,7 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
         const earned = wrongAttempts === 0 ? maxPoints : wrongAttempts === 1 ? Math.floor(maxPoints / 2) : 1;
         this.scoreService.addPoints(earned);
       }
-      setTimeout(() => this.shaffleTracks(this.tracks!), 1500);
+      setTimeout(() => this.shaffleTracks(), 1500);
     } else {
       this.blockStates[index] = "wrong";
       this.playFailSound();
