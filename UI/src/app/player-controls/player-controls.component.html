@@ -1,6 +1,6 @@
 <ng-container *ngIf="currentLevel">
   <div class="quiz-container">
-    <div class="level-info">Play a short preview one of popular songs, and guess the track.</div>
+    <div class="level-info">{{ levelInfo[currentLevel.id] }}</div>
     <div class="blocks">
       <div
         class="block"
