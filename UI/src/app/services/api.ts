@@ -4,6 +4,8 @@ export type Endpoints = {
   GetTopTracks: string;
   GetPopularTracks: string;
   GetRandomTracks: string;
+  SaveTrack: string;
+  CheckSavedTracks: string;
 };
 
 export const API: Endpoints = {
@@ -11,5 +13,7 @@ export const API: Endpoints = {
   GetProfile: "/api/profile",
   GetTopTracks: "/api/top-tracks",
   GetPopularTracks: "/api/tracks/popular",
-  GetRandomTracks: "/api/tracks/random"
+  GetRandomTracks: "/api/tracks/random",
+  SaveTrack: "/api/tracks/save",
+  CheckSavedTracks: "/api/tracks/check-saved"
 };
