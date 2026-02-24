@@ -30,6 +30,12 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
   public guessed = false;
   public savedTrackIds = new Set<string>();
 
+  public readonly levelInfo: Record<number, string> = {
+    1: "Listen to a short preview of one of your top tracks, and guess the song.",
+    2: "Listen to a short preview of a popular hit, and guess the track.",
+    3: "Listen to a short preview of a random song, and guess the track."
+  };
+
   private readonly pools: Record<number, Track[]> = { 1: [], 2: [], 3: [] };
 
   private readonly audio = new Audio();
