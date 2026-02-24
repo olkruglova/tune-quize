@@ -51,7 +51,7 @@ app.use(bodyParser.json());
 app.use(
     cors({
         origin: 'http://localhost:4200',
-        methods: 'GET,POST',
+        methods: 'GET,POST,PUT',
         allowedHeaders: 'Authorization,Content-Type',
     }),
     session({
@@ -63,7 +63,7 @@ app.use(
 );
 
 const scope =
-    'user-read-private user-read-email user-read-recently-played user-top-read user-follow-read user-follow-modify playlist-read-private playlist-read-collaborative playlist-modify-public';
+    'user-read-private user-read-email user-read-recently-played user-top-read user-follow-read user-follow-modify playlist-read-private playlist-read-collaborative playlist-modify-public user-library-modify user-library-read';
 
 app.get('/login', (req, res) => {
     const state = generateRandomString(16);
@@ -297,6 +297,55 @@ app.get('/api/tracks/random', async (req, res) => {
 //         res.status(500).json({ error: 'Internal Server Error' });
 //     }
 // });
+
+app.get('/api/tracks/check-saved', async (req, res) => {
+    const access_token = req.headers.authorization?.split(' ')[1];
+    if (!access_token) return res.status(401).json({ error: 'User not authenticated' });
+
+    const ids = req.query.ids;
+    if (!ids) return res.status(400).json({ error: 'ids query param is required' });
+
+    try {
+        const response = await fetch(`https://api.spotify.com/v1/me/tracks/contains?ids=${ids}`, {
+            headers: { Authorization: `Bearer ${access_token}` },
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            res.json(data);
+        } else {
+            res.status(response.status).json({ error: 'Failed to check saved tracks' });
+        }
+    } catch (error) {
+        console.error('Error checking saved tracks:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.put('/api/tracks/save', async (req, res) => {
+    const access_token = req.headers.authorization?.split(' ')[1];
+    if (!access_token) return res.status(401).json({ error: 'User not authenticated' });
+
+    const { trackId } = req.body;
+    if (!trackId) return res.status(400).json({ error: 'trackId is required' });
+
+    try {
+        const response = await fetch('https://api.spotify.com/v1/me/tracks', {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids: [trackId] }),
+        });
+
+        if (response.ok) {
+            res.json({ success: true });
+        } else {
+            res.status(response.status).json({ error: 'Failed to save track' });
+        }
+    } catch (error) {
+        console.error('Error saving track:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://127.0.0.1:${PORT}`);
