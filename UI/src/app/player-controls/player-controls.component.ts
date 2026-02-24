@@ -6,7 +6,7 @@ import { CommonModule } from "@angular/common";
 import { UserService } from "../services/user.service";
 import { Track } from "../models/track.model";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { faPlay, faPause, faStop } from "@fortawesome/free-solid-svg-icons";
+import { faPlay, faPause, faStop, faPlus, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { PlayerControlsService } from "./player-controls.component.service";
 import { ScoreService } from "../services/score.service";
 
@@ -23,9 +23,12 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
   public playIcon = faPlay;
   public pauseIcon = faPause;
   public stopIcon = faStop;
+  public plusIcon = faPlus;
+  public checkIcon = faCheck;
   public randomTrackNum: number = 0;
   public blockStates: ("correct" | "wrong" | null)[] = [null, null, null];
   public guessed = false;
+  public savedTrackIds = new Set<string>();
 
   private readonly pools: Record<number, Track[]> = { 1: [], 2: [], 3: [] };
 
@@ -94,6 +97,16 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
     this.currentTracks = currentTracks;
     this.blockStates = [null, null, null];
     this.guessed = false;
+
+    const ids = currentTracks.map((t) => t.id);
+    this.playerControlsService.checkSavedTracks(ids).subscribe({
+      next: (saved) => {
+        ids.forEach((id, i) => {
+          if (saved[i]) this.savedTrackIds.add(id);
+        });
+      },
+      error: () => {}
+    });
 
     if (pool.length < 20) {
       this.userService.fetchTracks(this.currentLevel.id);
@@ -182,6 +195,16 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.4);
+  }
+
+  saveTrack(track: Track, event: Event): void {
+    event.stopPropagation();
+    if (this.savedTrackIds.has(track.id)) return;
+
+    this.playerControlsService.saveTrack(track.id).subscribe({
+      next: () => this.savedTrackIds.add(track.id),
+      error: (err) => console.error("Failed to save track", err)
+    });
   }
 
   ngOnDestroy() {

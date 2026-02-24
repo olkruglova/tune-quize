@@ -11,6 +11,14 @@
       >
         <div class="block-title">{{ track.name }}</div>
         <div class="block-subtitle">{{ track.artistsText }}</div>
+        <button
+          class="save-btn"
+          [class.save-btn--saved]="savedTrackIds.has(track.id)"
+          (click)="saveTrack(track, $event)"
+          title="Save to your Liked Songs"
+        >
+          <fa-icon [icon]="savedTrackIds.has(track.id) ? checkIcon : plusIcon"></fa-icon>
+        </button>
       </div>
     </div>
     <div class="action-btns">
