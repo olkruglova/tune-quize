@@ -19,17 +19,23 @@
         justify-content: center;
         align-items: center;
 
-        .blocks {
-            min-height: 40vh;
+        .blocks-wrapper {
+            min-height: 30rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
+        .blocks {
             .block {
                 width: 36rem;
-                height: 6rem;
+                height: auto;
+                min-height: 6rem;
+                max-height: max-content;
                 border-radius: 5px;
                 background-color: $black;
                 color: $cream;
                 display: flex;
-                flex-direction: column;
                 justify-content: center;
                 align-items: center;
                 margin-top: 4rem;
@@ -41,6 +47,12 @@
 
                 +.block {
                     margin-top: 2rem;
+                }
+
+                .block-capture {
+                    display: flex;
+                    flex-direction: column;
+                    max-width: calc(100% - 4rem);
                 }
 
                 &.block--correct {
@@ -109,9 +121,14 @@
                 box-shadow: rgba(0, 0, 0, 0.4) 0px 10px 20px;
                 color: $cream;
 
-                &:hover {
+                &:hover:not(:disabled) {
                     cursor: pointer;
                     box-shadow: rgba(0, 0, 0, 0.4) 0px 3px 6px;
+                }
+
+                &:disabled {
+                    opacity: 0.3;
+                    cursor: not-allowed;
                 }
 
                 +button {

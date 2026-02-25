@@ -1,0 +1,58 @@
+@import "../../theme";
+
+:host {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.level-caption {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    animation: fadeIn 0.5s ease;
+
+    .caption-number {
+        font-family: $font-family;
+        font-size: 5rem;
+        font-weight: 700;
+        letter-spacing: 0.3rem;
+        line-height: 1;
+    }
+
+    .caption-divider {
+        width: 4rem;
+        height: 2px;
+        border-radius: 1px;
+        opacity: 0.6;
+        background-color: currentColor;
+    }
+
+    .caption-subtitle {
+        font-family: $font-family;
+        font-size: 1rem;
+        opacity: 0.6;
+        letter-spacing: 0.1rem;
+        text-align: center;
+    }
+
+    &.level-caption--green {
+        color: $neon-green;
+    }
+
+    &.level-caption--yellow {
+        color: $neon-yellow;
+    }
+
+    &.level-caption--orange {
+        color: $neon-orange;
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
