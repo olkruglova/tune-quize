@@ -123,6 +123,8 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
     if (pool.length < 20) {
       this.userService.fetchTracks(this.currentLevel.id);
     }
+
+    this.togglePreview();
   }
 
   togglePreview(): void {
