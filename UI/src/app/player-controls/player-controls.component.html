@@ -1,34 +1,40 @@
 <ng-container *ngIf="currentLevel">
   <div class="quiz-container">
     <div class="level-info">{{ levelInfo[currentLevel.id] }}</div>
-    <div class="blocks">
-      <div
-        class="block"
-        *ngFor="let track of currentTracks; let index = index"
-        [ngClass]="{ 'block--correct': blockStates[index] === 'correct', 'block--wrong': blockStates[index] === 'wrong' }"
-        (click)="selectTrack(index)"
-        tabindex="0"
-      >
-        <div class="block-title">{{ track.name }}</div>
-        <div class="block-subtitle">{{ track.artistsText }}</div>
-        <button
-          class="save-btn"
-          [class.save-btn--saved]="savedTrackIds.has(track.id)"
-          (click)="saveTrack(track, $event)"
-          title="Save to your Liked Songs"
+    <div class="blocks-wrapper">
+      <app-music-animation *ngIf="transitioning"></app-music-animation>
+      <app-level-caption *ngIf="!transitioning && !currentTracks" [level]="currentLevel"></app-level-caption>
+      <div class="blocks" *ngIf="!transitioning && currentTracks">
+        <div
+          class="block"
+          *ngFor="let track of currentTracks; let index = index"
+          [ngClass]="{ 'block--correct': blockStates[index] === 'correct', 'block--wrong': blockStates[index] === 'wrong' }"
+          (click)="selectTrack(index)"
+          tabindex="0"
         >
-          <fa-icon [icon]="savedTrackIds.has(track.id) ? checkIcon : plusIcon"></fa-icon>
-        </button>
+          <div class="block-capture">
+            <div class="block-title">{{ track.name }}</div>
+            <div class="block-subtitle">{{ track.artistsText }}</div>
+          </div>
+          <button
+            class="save-btn"
+            [class.save-btn--saved]="savedTrackIds.has(track.id)"
+            (click)="saveTrack(track, $event)"
+            title="Save to your Liked Songs"
+          >
+            <fa-icon [icon]="savedTrackIds.has(track.id) ? checkIcon : plusIcon"></fa-icon>
+          </button>
+        </div>
       </div>
     </div>
     <div class="action-btns">
-      <button [class]="'start-level-btn start-level-btn-' + currentLevel.id" (click)="playPreview()">
+      <button [class]="'start-level-btn start-level-btn-' + currentLevel.id" [disabled]="transitioning" (click)="playPreview()">
         <fa-icon [icon]="playIcon"></fa-icon>
       </button>
-      <button [class]="'start-level-btn start-level-btn-' + currentLevel.id" (click)="pausePreview()">
+      <button [class]="'start-level-btn start-level-btn-' + currentLevel.id" [disabled]="transitioning" (click)="pausePreview()">
         <fa-icon [icon]="pauseIcon"></fa-icon>
       </button>
-      <button [class]="'start-level-btn start-level-btn-' + currentLevel.id" (click)="stopPreview()">
+      <button [class]="'start-level-btn start-level-btn-' + currentLevel.id" [disabled]="transitioning" (click)="stopPreview()">
         <fa-icon [icon]="stopIcon"></fa-icon>
       </button>
     </div>

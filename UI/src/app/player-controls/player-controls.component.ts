@@ -9,12 +9,14 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faPlay, faPause, faStop, faPlus, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { PlayerControlsService } from "./player-controls.component.service";
 import { ScoreService } from "../services/score.service";
+import { MusicAnimationComponent } from "../music-animation/music-animation.component";
+import { LevelCaptionComponent } from "../level-caption/level-caption.component";
 
 @Component({
   selector: "app-player-controls",
   templateUrl: "./player-controls.component.html",
   styleUrls: ["./player-controls.component.scss"],
-  imports: [CommonModule, FontAwesomeModule],
+  imports: [CommonModule, FontAwesomeModule, MusicAnimationComponent, LevelCaptionComponent],
   standalone: true
 })
 export class PlayerControlsComponent implements OnInit, OnDestroy {
@@ -28,6 +30,7 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
   public randomTrackNum: number = 0;
   public blockStates: ("correct" | "wrong" | null)[] = [null, null, null];
   public guessed = false;
+  public transitioning = false;
   public savedTrackIds = new Set<string>();
 
   public readonly levelInfo: Record<number, string> = {
@@ -103,6 +106,7 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
     this.currentTracks = currentTracks;
     this.blockStates = [null, null, null];
     this.guessed = false;
+    this.transitioning = false;
 
     const ids = currentTracks.map((t) => t.id);
     this.playerControlsService.checkSavedTracks(ids).subscribe({
@@ -156,6 +160,7 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
     if (index === this.randomTrackNum) {
       this.blockStates[index] = "correct";
       this.guessed = true;
+      this.transitioning = true;
       this.stopPreview();
       this.playSuccessSound();
       if (this.currentLevel) {
