@@ -28,14 +28,8 @@
       </div>
     </div>
     <div class="action-btns">
-      <button [class]="'start-level-btn start-level-btn-' + currentLevel.id" [disabled]="transitioning" (click)="playPreview()">
-        <fa-icon [icon]="playIcon"></fa-icon>
-      </button>
-      <button [class]="'start-level-btn start-level-btn-' + currentLevel.id" [disabled]="transitioning" (click)="pausePreview()">
-        <fa-icon [icon]="pauseIcon"></fa-icon>
-      </button>
-      <button [class]="'start-level-btn start-level-btn-' + currentLevel.id" [disabled]="transitioning" (click)="stopPreview()">
-        <fa-icon [icon]="stopIcon"></fa-icon>
+      <button [class]="'start-level-btn start-level-btn-' + currentLevel.id" [disabled]="transitioning || !currentTracks" (click)="togglePreview()">
+        <fa-icon [icon]="isPlaying ? pauseIcon : playIcon"></fa-icon>
       </button>
     </div>
   </div>
