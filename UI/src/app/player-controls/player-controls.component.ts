@@ -6,7 +6,7 @@ import { CommonModule } from "@angular/common";
 import { UserService } from "../services/user.service";
 import { Track } from "../models/track.model";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { faPlay, faPause, faStop, faPlus, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faPlay, faPause, faPlus, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { PlayerControlsService } from "./player-controls.component.service";
 import { ScoreService } from "../services/score.service";
 import { MusicAnimationComponent } from "../music-animation/music-animation.component";
@@ -24,9 +24,9 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
   public currentTracks: Track[] | null = null;
   public playIcon = faPlay;
   public pauseIcon = faPause;
-  public stopIcon = faStop;
   public plusIcon = faPlus;
   public checkIcon = faCheck;
+  public isPlaying = false;
   public randomTrackNum: number = 0;
   public blockStates: ("correct" | "wrong" | null)[] = [null, null, null];
   public guessed = false;
@@ -52,6 +52,8 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    this.audio.onended = () => { this.isPlaying = false; };
+
     this.subscription.add(
       this.sidebarService.currentLevel$.subscribe((level: Level | null) => {
         if (level && level.id !== this.currentLevel?.id) {
@@ -123,7 +125,13 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
     }
   }
 
-  playPreview(): void {
+  togglePreview(): void {
+    if (this.isPlaying) {
+      this.audio.pause();
+      this.isPlaying = false;
+      return;
+    }
+
     const previewUrl = this.currentTracks?.[this.randomTrackNum].preview_url;
 
     if (!previewUrl) {
@@ -132,26 +140,22 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
     }
 
     if (this.audio.src !== previewUrl) {
-      this.audio.pause();
+      this.audio.src = previewUrl;
+      this.audio.load();
     }
 
-    this.audio.src = previewUrl;
-    this.audio.load();
     this.audio
       .play()
-      .then(() => {})
+      .then(() => { this.isPlaying = true; })
       .catch((error) => {
         console.error("Error playing preview:", error);
       });
   }
 
-  pausePreview(): void {
-    this.audio.pause();
-  }
-
   stopPreview(): void {
     this.audio.pause();
     this.audio.currentTime = 0;
+    this.isPlaying = false;
   }
 
   selectTrack(index: number): void {
