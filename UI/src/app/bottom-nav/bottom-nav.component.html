@@ -1,0 +1,13 @@
+<nav class="bottom-nav">
+  <a
+    *ngFor="let level of levels"
+    class="nav-tab"
+    [class]="'nav-tab nav-tab--' + level.color"
+    [routerLink]="[level.routerLink]"
+    routerLinkActive="active"
+    (click)="setLevel(level)"
+  >
+    <fa-icon [icon]="level.id === 1 ? heartIcon : level.id === 2 ? musicIcon : globeIcon"></fa-icon>
+    <span class="nav-tab__title">{{ level.title }}</span>
+  </a>
+</nav>

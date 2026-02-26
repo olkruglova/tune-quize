@@ -1,4 +1,13 @@
 <div class="user-panel">
-  <div class="score">{{ score$ | async }}</div>
+  <div class="stats">
+    <div class="stat">
+      <span class="stat__icon">🔥</span>
+      <span class="stat__text">Score: <strong>{{ score$ | async }}</strong></span>
+    </div>
+    <div class="stat">
+      <span class="stat__icon">🎵</span>
+      <span class="stat__text">Combo: <strong>{{ combo$ | async }}</strong></span>
+    </div>
+  </div>
   <div #userAvatar class="user-avatar"></div>
 </div>

@@ -17,9 +17,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private subscription: Subscription = new Subscription();
 
   public score$;
+  public combo$;
 
   constructor(private readonly userService: UserService, private readonly scoreService: ScoreService) {
     this.score$ = this.scoreService.score$;
+    this.combo$ = this.scoreService.combo$;
   }
 
   ngOnInit() {

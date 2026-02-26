@@ -1,0 +1,253 @@
+.player {
+    position: relative;
+    width: 680px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Center glow backdrop */
+.glow-backdrop {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 255, 60, 0.08) 0%, transparent 70%);
+    animation: pulseGlow 2s ease-in-out infinite;
+    z-index: 0;
+}
+
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
+}
+
+/* Waveform bars container */
+.waveform {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 0 20px;
+    z-index: 2;
+}
+
+.bar {
+    width: 3px;
+    border-radius: 2px;
+    background: linear-gradient(to top, #00cc33, #00ff55, #88ffaa);
+    box-shadow: 0 0 6px #00ff55, 0 0 12px rgba(0, 255, 85, 0.4);
+    animation: wave var(--dur) ease-in-out infinite alternate;
+    transform-origin: center;
+}
+
+@keyframes wave {
+    0% {
+        height: var(--min-h);
+        opacity: 0.5;
+    }
+
+    100% {
+        height: var(--max-h);
+        opacity: 1;
+    }
+}
+
+/* Generate 60 bars with varying heights */
+/* Left side bars get smaller toward edges, right side mirrors */
+
+/* Circular ring system */
+.rings {
+    position: absolute;
+    width: 190px;
+    height: 190px;
+    z-index: 3;
+}
+
+.ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0, 255, 60, 0.25);
+    animation: ringPulse var(--ring-dur) ease-in-out infinite;
+}
+
+.ring:nth-child(1) {
+    --ring-dur: 2s;
+    inset: 0px;
+    border-color: rgba(0, 255, 60, 0.5);
+    border-width: 2px;
+}
+
+.ring:nth-child(2) {
+    --ring-dur: 2.4s;
+    inset: -12px;
+}
+
+.ring:nth-child(3) {
+    --ring-dur: 2.8s;
+    inset: -24px;
+    border-color: rgba(0, 255, 60, 0.15);
+}
+
+.ring:nth-child(4) {
+    --ring-dur: 3.2s;
+    inset: -36px;
+    border-color: rgba(0, 255, 60, 0.08);
+}
+
+@keyframes ringPulse {
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.03);
+    }
+}
+
+/* Outer decorative arc lines */
+.arc-container {
+    position: absolute;
+    width: 190px;
+    height: 190px;
+    z-index: 3;
+}
+
+.arc-svg {
+    position: absolute;
+    inset: -40px;
+    width: calc(100% + 80px);
+    height: calc(100% + 80px);
+    animation: spinSlow 8s linear infinite;
+}
+
+.arc-svg2 {
+    animation-direction: reverse;
+    animation-duration: 12s;
+}
+
+@keyframes spinSlow {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Play button */
+.play-btn {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #1aff66, #00cc44);
+    box-shadow: 0 0 20px rgba(0, 255, 80, 0.7), 0 0 40px rgba(0, 255, 80, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    animation: btnPulse 2s ease-in-out infinite;
+}
+
+.play-btn:hover:not(.play-btn--disabled) {
+    transform: scale(1.08);
+    box-shadow: 0 0 30px rgba(0, 255, 80, 0.9), 0 0 60px rgba(0, 255, 80, 0.4);
+}
+
+.play-btn--disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    animation: none;
+}
+
+@keyframes btnPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(0, 255, 80, 0.7), 0 0 40px rgba(0, 255, 80, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 30px rgba(0, 255, 80, 0.9), 0 0 60px rgba(0, 255, 80, 0.5);
+    }
+}
+
+.play-icon {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 11px 0 11px 20px;
+    border-color: transparent transparent transparent #003311;
+    margin-left: 4px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+    transition: none;
+}
+
+.play-icon--pause {
+    width: 20px;
+    height: 22px;
+    border-style: none;
+    border-left: 6px solid #003311;
+    border-right: 6px solid #003311;
+    margin-left: 0;
+    background: transparent;
+}
+
+/* Scanning line effect */
+.scan-ring {
+    position: absolute;
+    width: 190px;
+    height: 190px;
+    z-index: 4;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: conic-gradient(from 0deg, rgba(0, 255, 60, 0.8) 0deg, rgba(0, 255, 60, 0) 60deg, transparent 60deg) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    animation: scanRotate 3s linear infinite;
+}
+
+@keyframes scanRotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Tick marks on outer ring */
+.ticks {
+    position: absolute;
+    width: 224px;
+    height: 224px;
+    z-index: 3;
+    animation: spinSlow 20s linear infinite;
+}

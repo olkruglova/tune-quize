@@ -1,6 +1,12 @@
 <ng-container *ngIf="currentLevel">
   <div class="quiz-container">
     <div class="level-info">{{ levelInfo[currentLevel.id] }}</div>
+    <app-audio-visualizer
+      [isPlaying]="isPlaying"
+      [disabled]="transitioning || !currentTracks"
+      (toggle)="togglePreview()"
+    ></app-audio-visualizer>
+
     <div class="blocks-wrapper">
       <app-music-animation *ngIf="transitioning"></app-music-animation>
       <app-level-caption *ngIf="!transitioning && !currentTracks" [level]="currentLevel"></app-level-caption>
@@ -27,10 +33,6 @@
         </div>
       </div>
     </div>
-    <div class="action-btns">
-      <button [class]="'start-level-btn start-level-btn-' + currentLevel.id" [disabled]="transitioning || !currentTracks" (click)="togglePreview()">
-        <fa-icon [icon]="isPlaying ? pauseIcon : playIcon"></fa-icon>
-      </button>
-    </div>
+    <div class="question-progress">Question {{ questionNumber }} of {{ totalQuestions }}</div>
   </div>
 </ng-container>
