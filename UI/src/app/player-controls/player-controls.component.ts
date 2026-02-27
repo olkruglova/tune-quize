@@ -1,17 +1,16 @@
+import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { faCheck, faPause, faPlay, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Subscription } from "rxjs";
+import { AudioVisualizerComponent } from "../audio-visualizer/audio-visualizer.component";
+import { LevelCaptionComponent } from "../level-caption/level-caption.component";
+import { Track } from "../models/track.model";
+import { MusicAnimationComponent } from "../music-animation/music-animation.component";
+import { ScoreService } from "../services/score.service";
+import { UserService } from "../services/user.service";
 import { SidebarComponentService } from "../sidebar/sidebar.component.service";
 import { Level } from "../sidebar/sidebar.model";
-import { CommonModule } from "@angular/common";
-import { UserService } from "../services/user.service";
-import { Track } from "../models/track.model";
-import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { faPlus, faCheck } from "@fortawesome/free-solid-svg-icons";
-import { PlayerControlsService } from "./player-controls.component.service";
-import { ScoreService } from "../services/score.service";
-import { MusicAnimationComponent } from "../music-animation/music-animation.component";
-import { LevelCaptionComponent } from "../level-caption/level-caption.component";
-import { AudioVisualizerComponent } from "../audio-visualizer/audio-visualizer.component";
 
 @Component({
   selector: "app-player-controls",
@@ -23,6 +22,8 @@ import { AudioVisualizerComponent } from "../audio-visualizer/audio-visualizer.c
 export class PlayerControlsComponent implements OnInit, OnDestroy {
   public currentLevel: Level | null = null;
   public currentTracks: Track[] | null = null;
+  public playIcon = faPlay;
+  public pauseIcon = faPause;
   public plusIcon = faPlus;
   public checkIcon = faCheck;
   public isPlaying = false;
@@ -48,12 +49,13 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
   constructor(
     private readonly sidebarService: SidebarComponentService,
     private readonly userService: UserService,
-    private readonly playerControlsService: PlayerControlsService,
     private readonly scoreService: ScoreService
   ) {}
 
   ngOnInit() {
-    this.audio.onended = () => { this.isPlaying = false; };
+    this.audio.onended = () => {
+      this.isPlaying = false;
+    };
 
     this.subscription.add(
       this.sidebarService.currentLevel$.subscribe((level: Level | null) => {
@@ -104,7 +106,7 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
 
     const currentTracks = pool.splice(0, 3);
     currentTracks.forEach((track) => {
-      track.artistsText = track.artists.map((artist) => artist.name).join(", ");
+      track.artistsText = track.artistName;
     });
 
     this.randomTrackNum = Math.floor(Math.random() * 3);
@@ -112,16 +114,6 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
     this.blockStates = [null, null, null];
     this.guessed = false;
     this.transitioning = false;
-
-    const ids = currentTracks.map((t) => t.id);
-    this.playerControlsService.checkSavedTracks(ids).subscribe({
-      next: (saved) => {
-        ids.forEach((id, i) => {
-          if (saved[i]) this.savedTrackIds.add(id);
-        });
-      },
-      error: () => {}
-    });
 
     if (pool.length < 20) {
       this.userService.fetchTracks(this.currentLevel.id);
@@ -151,7 +143,9 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
 
     this.audio
       .play()
-      .then(() => { this.isPlaying = true; })
+      .then(() => {
+        this.isPlaying = true;
+      })
       .catch((error) => {
         console.error("Error playing preview:", error);
       });
@@ -221,16 +215,6 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.4);
-  }
-
-  saveTrack(track: Track, event: Event): void {
-    event.stopPropagation();
-    if (this.savedTrackIds.has(track.id)) return;
-
-    this.playerControlsService.saveTrack(track.id).subscribe({
-      next: () => this.savedTrackIds.add(track.id),
-      error: (err) => console.error("Failed to save track", err)
-    });
   }
 
   ngOnDestroy() {

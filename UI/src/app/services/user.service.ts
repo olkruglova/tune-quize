@@ -1,8 +1,15 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Subject, catchError, map, of } from "rxjs";
-import { API } from "./api";
 import { Track } from "../models/track.model";
+
+const ITUNES_SEARCH = "https://itunes.apple.com/search";
+
+const POPULAR_ARTISTS = ["Taylor Swift", "The Weeknd", "Drake", "Billie Eilish", "Ed Sheeran", "Ariana Grande", "Post Malone", "Dua Lipa"];
+
+const GENRES = ["pop", "rock", "hip hop", "r&b", "country", "electronic", "jazz", "soul"];
+
+const RANDOM_CHARS = "abcdefghijklmnopqrstuvwxyz".split("");
 
 @Injectable({
   providedIn: "root"
@@ -12,27 +19,25 @@ export class UserService {
   public userProfile$ = new BehaviorSubject<any>(null);
   public trackBatch$ = new Subject<{ level: number; tracks: Track[] }>();
 
-  private readonly timeRanges = ["short_term", "medium_term", "long_term"] as const;
   private batchIndices: Record<number, number> = { 1: 0, 2: 0, 3: 0 };
 
   constructor(private http: HttpClient) {}
-
-  getUserData(): void {
-    this.getProfileData();
-  }
 
   fetchTracks(level: number): void {
     const batch = this.batchIndices[level] ?? 0;
     this.batchIndices[level] = batch + 1;
 
+    let term: string;
     if (level === 1) {
-      const timeRange = this.timeRanges[batch % this.timeRanges.length];
-      this.loadTracks(level, `${API.GetTopTracks}?time_range=${timeRange}`);
+      term = POPULAR_ARTISTS[batch % POPULAR_ARTISTS.length];
     } else if (level === 2) {
-      this.loadTracks(level, `${API.GetPopularTracks}?batch=${batch}`);
+      term = GENRES[batch % GENRES.length];
     } else {
-      this.loadTracks(level, `${API.GetRandomTracks}?batch=${batch}`);
+      term = RANDOM_CHARS[batch % RANDOM_CHARS.length];
     }
+
+    const url = `${ITUNES_SEARCH}?term=${encodeURIComponent(term)}&entity=song&limit=50&media=music`;
+    this.loadTracks(level, url);
   }
 
   private loadTracks(level: number, url: string): void {
@@ -42,30 +47,22 @@ export class UserService {
       .get<any>(url)
       .pipe(
         map((response: any) => {
+          const tracks: Track[] = response.results
+            .filter((r: any) => r.kind === "song" && r.previewUrl)
+            .map(
+              (r: any): Track => ({
+                id: r.trackId.toString(),
+                name: r.trackName,
+                artistName: r.artistName,
+                preview_url: r.previewUrl,
+                artworkUrl: r.artworkUrl100 ?? ""
+              })
+            );
           this.isLoading$.next(false);
-          this.trackBatch$.next({ level, tracks: response.items });
+          this.trackBatch$.next({ level, tracks });
         }),
         catchError((error) => {
           console.error("Error fetching tracks", error);
-          this.isLoading$.next(false);
-          return of(null);
-        })
-      )
-      .subscribe();
-  }
-
-  private getProfileData(): void {
-    this.isLoading$.next(true);
-
-    this.http
-      .get<any>(API.GetProfile)
-      .pipe(
-        map((response: any) => {
-          this.isLoading$.next(false);
-          this.userProfile$.next(response);
-        }),
-        catchError((error) => {
-          console.error("Error fetching user profile", error);
           this.isLoading$.next(false);
           return of(null);
         })

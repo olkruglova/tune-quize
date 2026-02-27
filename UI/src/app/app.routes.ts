@@ -3,6 +3,7 @@ import { MainComponent } from "./main/main.component";
 import { PlayerControlsComponent } from "./player-controls/player-controls.component";
 
 export const routes: Routes = [
+  { path: "", redirectTo: "quiz", pathMatch: "full" },
   {
     path: "quiz",
     component: MainComponent,
@@ -14,7 +15,5 @@ export const routes: Routes = [
       }
     ]
   },
-  //   { path: 'second-component', component: SecondComponent },
-  { path: "**", redirectTo: "", pathMatch: "full" }
-  //   { path: '**', component: PageNotFoundComponent },
+  { path: "**", redirectTo: "quiz", pathMatch: "full" }
 ];
