@@ -1,68 +1,78 @@
 @import "../../theme";
 
 :host::ng-deep {
-    .container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        margin-top: 8rem;
-
-        &>div {
-            margin-bottom: 2rem;
-        }
-    }
-
     .quiz-container {
         display: flex;
         flex-direction: column;
-        justify-content: center;
         align-items: center;
+        width: 100%;
+        padding-top: 0.5rem;
+
+        .level-info {
+            font-family: $font-family;
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.45);
+            text-align: center;
+            letter-spacing: 0.03rem;
+            max-width: 36rem;
+            margin-bottom: 0.25rem;
+        }
 
         .blocks-wrapper {
-            min-height: 30rem;
+            min-height: 20rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            width: 100%;
         }
 
         .blocks {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            width: 100%;
+            max-width: 36rem;
+
             .block {
-                width: 36rem;
-                height: auto;
-                min-height: 6rem;
-                max-height: max-content;
-                border-radius: 5px;
-                background-color: $black;
+                width: 100%;
+                min-height: 5rem;
+                border-radius: 8px;
+                background-color: rgba(28, 30, 38, 0.85);
                 color: $cream;
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                margin-top: 4rem;
-                border: 1px solid $neon-green;
-                box-shadow: rgba(0, 0, 0, 0.4) 0px 10px 20px;
-                padding: 1rem;
+                border: 1px solid rgba(57, 255, 19, 0.35);
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+                padding: 0.85rem 1rem;
                 text-align: center;
                 position: relative;
+                cursor: pointer;
+                transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 
-                +.block {
-                    margin-top: 2rem;
+                &:hover {
+                    border-color: rgba(57, 255, 19, 0.65);
+                    background-color: rgba(57, 255, 19, 0.05);
+                    box-shadow: 0 4px 20px rgba(57, 255, 19, 0.1);
                 }
 
                 .block-capture {
                     display: flex;
                     flex-direction: column;
-                    max-width: calc(100% - 4rem);
+                    gap: 0.3rem;
+                    max-width: calc(100% - 3.5rem);
                 }
 
                 &.block--correct {
-                    border: 3px solid #00e676;
-                    box-shadow: 0 0 12px rgba(0, 230, 118, 0.5);
+                    border: 2px solid #00e676;
+                    box-shadow: 0 0 18px rgba(0, 230, 118, 0.35);
+                    background-color: rgba(0, 230, 118, 0.07);
                 }
 
                 &.block--wrong {
-                    border: 3px solid #ff1744;
-                    box-shadow: 0 0 12px rgba(255, 23, 68, 0.3);
+                    border: 2px solid #ff1744;
+                    box-shadow: 0 0 14px rgba(255, 23, 68, 0.25);
+                    background-color: rgba(255, 23, 68, 0.05);
                 }
 
                 .save-btn {
@@ -73,9 +83,9 @@
                     width: 2rem;
                     height: 2rem;
                     border-radius: 50%;
-                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
                     background: transparent;
-                    color: rgba(255, 255, 255, 0.4);
+                    color: rgba(255, 255, 255, 0.35);
                     font-size: 0.75rem;
                     display: flex;
                     align-items: center;
@@ -134,43 +144,27 @@
                 }
 
                 .block-title {
-                    font-size: 1.25rem;
-                    margin-bottom: 1rem;
+                    font-family: $font-family;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    color: $cream;
                 }
 
                 .block-subtitle {
-                    font-size: 1rem;
-                    opacity: 0.6;
+                    font-family: $font-family;
+                    font-size: 0.78rem;
+                    color: rgba(255, 255, 255, 0.5);
                 }
             }
         }
 
-        .action-btns {
-            margin-top: 4rem;
-
-            button {
-                width: 3.5rem;
-                height: 3.5rem;
-                background-color: $black;
-                font-size: 1rem;
-                border: none;
-                border-radius: 50%;
-                transition: all 0.3s ease;
-                box-shadow: rgba(0, 0, 0, 0.4) 0px 10px 20px;
-                color: $cream;
-
-                &:hover:not(:disabled) {
-                    cursor: pointer;
-                    box-shadow: rgba(0, 0, 0, 0.4) 0px 3px 6px;
-                }
-
-                &:disabled {
-                    opacity: 0.3;
-                    cursor: not-allowed;
-                }
-
-            }
+        .question-progress {
+            margin-top: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-family: $font-family;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.08rem;
         }
-
     }
 }

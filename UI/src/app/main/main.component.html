@@ -1,11 +1,17 @@
-<div class="sidebar">
-    <app-sidebar></app-sidebar>
+<div class="top-bar">
+    <div class="top-bar__side"></div>
+    <div class="top-bar__title">
+        <h1 class="app-title">Tune Quiz</h1>
+    </div>
+    <div class="top-bar__side top-bar__side--right">
+        <app-header></app-header>
+    </div>
 </div>
 
-<div class="main-content">
-    <app-header></app-header>
-    <div class="container">
-        <app-quiz></app-quiz>
-    </div>
+<div class="content-area">
+    <app-quiz></app-quiz>
+</div>
 
+<div class="bottom-nav-area">
+    <app-bottom-nav></app-bottom-nav>
 </div>
