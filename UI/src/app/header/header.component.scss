@@ -1,29 +1,48 @@
-@import "../../theme/colors";
+@import "../../theme";
 
 :host::ng-deep {
     .user-panel {
         display: flex;
-        justify-content: center;
         align-items: center;
+        gap: 1.25rem;
 
-        .score {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: $cream;
-            margin-right: 1rem;
-            letter-spacing: 0.05em;
+        .stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            align-items: flex-end;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-family: $font-family;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+
+            &__icon {
+                font-size: 0.85rem;
+            }
+
+            &__text {
+                strong {
+                    color: $cream;
+                    font-size: 0.9rem;
+                }
+            }
         }
 
         .user-avatar {
             border-radius: 50%;
-            border: 1px solid $cream;
-            box-shadow: rgba(0, 0, 0, 0.4) 0px 10px 20px;
-            width: 64px;
-            height: 64px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+            width: 48px;
+            height: 48px;
             background-position: center;
-            background-repeat: none;
+            background-repeat: no-repeat;
             background-size: cover;
-            position: relative;
+            flex-shrink: 0;
         }
     }
 }

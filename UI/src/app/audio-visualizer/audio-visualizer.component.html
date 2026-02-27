@@ -1,0 +1,36 @@
+<div class="player">
+  <div class="glow-backdrop"></div>
+
+  <!-- Waveform bars -->
+  <div class="waveform" #waveformRef></div>
+
+  <!-- Rings -->
+  <div class="rings">
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+  </div>
+
+  <!-- Rotating arc decorations -->
+  <div class="arc-container">
+    <svg class="arc-svg" viewBox="0 0 270 270" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="135" cy="135" r="120" stroke="rgba(0,255,60,0.15)" stroke-width="1" stroke-dasharray="4 8" />
+      <path d="M135 15 A120 120 0 0 1 255 135" stroke="rgba(0,255,60,0.6)" stroke-width="2" stroke-linecap="round" />
+      <path d="M135 255 A120 120 0 0 1 15 135" stroke="rgba(0,255,60,0.6)" stroke-width="2" stroke-linecap="round" />
+    </svg>
+    <svg class="arc-svg arc-svg2" viewBox="0 0 270 270" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="135" cy="135" r="108" stroke="rgba(0,255,60,0.1)" stroke-width="1" stroke-dasharray="2 6" />
+      <path d="M135 27 A108 108 0 0 1 243 135" stroke="rgba(0,255,60,0.4)" stroke-width="1.5" stroke-linecap="round" />
+      <path d="M243 135 A108 108 0 0 1 135 243" stroke="rgba(0,255,60,0.2)" stroke-width="1" stroke-linecap="round" />
+    </svg>
+  </div>
+
+  <!-- Scanning line -->
+  <div class="scan-ring"></div>
+
+  <!-- Play/Pause button -->
+  <div class="play-btn" [class.play-btn--disabled]="disabled" (click)="handleClick()">
+    <div class="play-icon" [class.play-icon--pause]="isPlaying"></div>
+  </div>
+</div>

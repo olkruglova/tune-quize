@@ -1,21 +1,22 @@
+import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { faCheck, faPause, faPlay, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Subscription } from "rxjs";
+import { AudioVisualizerComponent } from "../audio-visualizer/audio-visualizer.component";
+import { LevelCaptionComponent } from "../level-caption/level-caption.component";
+import { Track } from "../models/track.model";
+import { MusicAnimationComponent } from "../music-animation/music-animation.component";
+import { ScoreService } from "../services/score.service";
+import { UserService } from "../services/user.service";
 import { SidebarComponentService } from "../sidebar/sidebar.component.service";
 import { Level } from "../sidebar/sidebar.model";
-import { CommonModule } from "@angular/common";
-import { UserService } from "../services/user.service";
-import { Track } from "../models/track.model";
-import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { faPlay, faPause } from "@fortawesome/free-solid-svg-icons";
-import { ScoreService } from "../services/score.service";
-import { MusicAnimationComponent } from "../music-animation/music-animation.component";
-import { LevelCaptionComponent } from "../level-caption/level-caption.component";
 
 @Component({
   selector: "app-player-controls",
   templateUrl: "./player-controls.component.html",
   styleUrls: ["./player-controls.component.scss"],
-  imports: [CommonModule, FontAwesomeModule, MusicAnimationComponent, LevelCaptionComponent],
+  imports: [CommonModule, FontAwesomeModule, MusicAnimationComponent, LevelCaptionComponent, AudioVisualizerComponent],
   standalone: true
 })
 export class PlayerControlsComponent implements OnInit, OnDestroy {
@@ -23,11 +24,16 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
   public currentTracks: Track[] | null = null;
   public playIcon = faPlay;
   public pauseIcon = faPause;
+  public plusIcon = faPlus;
+  public checkIcon = faCheck;
   public isPlaying = false;
   public randomTrackNum: number = 0;
   public blockStates: ("correct" | "wrong" | null)[] = [null, null, null];
   public guessed = false;
   public transitioning = false;
+  public savedTrackIds = new Set<string>();
+  public questionNumber = 1;
+  public readonly totalQuestions = 10;
 
   public readonly levelInfo: Record<number, string> = {
     1: "Listen to a short preview of one of your top tracks, and guess the song.",
@@ -58,6 +64,8 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
           this.currentTracks = null;
           this.blockStates = [null, null, null];
           this.guessed = false;
+          this.questionNumber = 1;
+          this.scoreService.resetCombo();
           this.currentLevel = level;
           const pool = this.pools[level.id];
           if (pool.length >= 3) {
@@ -163,7 +171,13 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
         const maxPoints = this.currentLevel.points;
         const earned = wrongAttempts === 0 ? maxPoints : wrongAttempts === 1 ? Math.floor(maxPoints / 2) : 1;
         this.scoreService.addPoints(earned);
+        if (wrongAttempts === 0) {
+          this.scoreService.incrementCombo();
+        } else {
+          this.scoreService.resetCombo();
+        }
       }
+      this.questionNumber = this.questionNumber < this.totalQuestions ? this.questionNumber + 1 : 1;
       setTimeout(() => this.shaffleTracks(), 1500);
     } else {
       this.blockStates[index] = "wrong";
