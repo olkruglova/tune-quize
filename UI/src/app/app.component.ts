@@ -1,9 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
+import { RouterOutlet } from "@angular/router";
 import { Subscription } from "rxjs";
-import { environment } from "../environments/environment";
-import { UserService } from "./services/user.service";
 import { SidebarComponentService } from "./sidebar/sidebar.component.service";
 
 @Component({
@@ -11,16 +9,12 @@ import { SidebarComponentService } from "./sidebar/sidebar.component.service";
   templateUrl: "./app.component.html",
   styleUrl: "./app.component.scss",
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive]
+  imports: [CommonModule, RouterOutlet]
 })
 export class AppComponent implements OnInit, OnDestroy {
   private subscription: Subscription = new Subscription();
 
-  constructor(
-    private userService: UserService,
-    private sidebarService: SidebarComponentService,
-    private router: Router
-  ) {}
+  constructor(private sidebarService: SidebarComponentService) {}
 
   @ViewChild("content") content!: ElementRef;
 
@@ -36,10 +30,6 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       })
     );
-  }
-
-  login(): void {
-    window.location.href = `${environment.apiUrl}/login`;
   }
 
   ngOnDestroy(): void {

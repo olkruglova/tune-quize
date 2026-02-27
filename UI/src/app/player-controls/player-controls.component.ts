@@ -6,8 +6,7 @@ import { CommonModule } from "@angular/common";
 import { UserService } from "../services/user.service";
 import { Track } from "../models/track.model";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { faPlay, faPause, faPlus, faCheck } from "@fortawesome/free-solid-svg-icons";
-import { PlayerControlsService } from "./player-controls.component.service";
+import { faPlay, faPause } from "@fortawesome/free-solid-svg-icons";
 import { ScoreService } from "../services/score.service";
 import { MusicAnimationComponent } from "../music-animation/music-animation.component";
 import { LevelCaptionComponent } from "../level-caption/level-caption.component";
@@ -24,14 +23,11 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
   public currentTracks: Track[] | null = null;
   public playIcon = faPlay;
   public pauseIcon = faPause;
-  public plusIcon = faPlus;
-  public checkIcon = faCheck;
   public isPlaying = false;
   public randomTrackNum: number = 0;
   public blockStates: ("correct" | "wrong" | null)[] = [null, null, null];
   public guessed = false;
   public transitioning = false;
-  public savedTrackIds = new Set<string>();
 
   public readonly levelInfo: Record<number, string> = {
     1: "Listen to a short preview of one of your top tracks, and guess the song.",
@@ -47,12 +43,13 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
   constructor(
     private readonly sidebarService: SidebarComponentService,
     private readonly userService: UserService,
-    private readonly playerControlsService: PlayerControlsService,
     private readonly scoreService: ScoreService
   ) {}
 
   ngOnInit() {
-    this.audio.onended = () => { this.isPlaying = false; };
+    this.audio.onended = () => {
+      this.isPlaying = false;
+    };
 
     this.subscription.add(
       this.sidebarService.currentLevel$.subscribe((level: Level | null) => {
@@ -101,7 +98,7 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
 
     const currentTracks = pool.splice(0, 3);
     currentTracks.forEach((track) => {
-      track.artistsText = track.artists.map((artist) => artist.name).join(", ");
+      track.artistsText = track.artistName;
     });
 
     this.randomTrackNum = Math.floor(Math.random() * 3);
@@ -109,16 +106,6 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
     this.blockStates = [null, null, null];
     this.guessed = false;
     this.transitioning = false;
-
-    const ids = currentTracks.map((t) => t.id);
-    this.playerControlsService.checkSavedTracks(ids).subscribe({
-      next: (saved) => {
-        ids.forEach((id, i) => {
-          if (saved[i]) this.savedTrackIds.add(id);
-        });
-      },
-      error: () => {}
-    });
 
     if (pool.length < 20) {
       this.userService.fetchTracks(this.currentLevel.id);
@@ -148,7 +135,9 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
 
     this.audio
       .play()
-      .then(() => { this.isPlaying = true; })
+      .then(() => {
+        this.isPlaying = true;
+      })
       .catch((error) => {
         console.error("Error playing preview:", error);
       });
@@ -212,16 +201,6 @@ export class PlayerControlsComponent implements OnInit, OnDestroy {
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.4);
-  }
-
-  saveTrack(track: Track, event: Event): void {
-    event.stopPropagation();
-    if (this.savedTrackIds.has(track.id)) return;
-
-    this.playerControlsService.saveTrack(track.id).subscribe({
-      next: () => this.savedTrackIds.add(track.id),
-      error: (err) => console.error("Failed to save track", err)
-    });
   }
 
   ngOnDestroy() {
